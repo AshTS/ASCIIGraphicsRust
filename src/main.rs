@@ -6,15 +6,15 @@ use asciiengine::screen::{TextBufferScreen, TextAlign, TextBufferRect, TextView,
 use sdl2::event::{Event, WindowEvent};
 use sdl2::keyboard::Keycode;
 
-pub const PIXEL_SCALE: usize = 1;
 pub const INITIAL_SIZE: (usize, usize) = (640, 480);
 
 fn main() -> Result<(), String> {
+    let mut pixel_scale: usize = 100;
     let mut interface = GameInterface::new(INITIAL_SIZE).unwrap();
     let texture_creator = interface.canvas.texture_creator();
 
     let mut character_map = CharacterMap::from_file("assets/codepage.bmp", &texture_creator, (9, 16), (8, 8), 32)?;
-    let mut text_buffer = TextBufferScreen::new(INITIAL_SIZE.0/9/PIXEL_SCALE, INITIAL_SIZE.1/16/PIXEL_SCALE);
+    let mut text_buffer = TextBufferScreen::new(INITIAL_SIZE.0*100/9/pixel_scale, INITIAL_SIZE.1*100/16/pixel_scale);
     let mut running = true;
     
     let mut i = 0;
@@ -43,7 +43,26 @@ fn main() -> Result<(), String> {
                 }
                 Event::Window { win_event: WindowEvent::Resized(width, height), .. } => {
                     let (cw, ch) = character_map.character_size();
-                    text_buffer.resize_buffer(width as usize / PIXEL_SCALE / cw, height as usize / PIXEL_SCALE / ch);
+                    text_buffer.resize_buffer(width as usize * 100 / pixel_scale / cw, height as usize * 100 / pixel_scale / ch);
+                    redraw_all = true;
+                }
+
+                Event::KeyDown { keycode: Some(Keycode::U), .. } => {
+                    let width = INITIAL_SIZE.0;
+                    let height = INITIAL_SIZE.1;
+                    pixel_scale -= 10;
+                    println!("{}", pixel_scale);
+                    let (cw, ch) = character_map.character_size();
+                    text_buffer.resize_buffer(width as usize * 100 / pixel_scale / cw, height as usize * 100 / pixel_scale / ch);
+                    redraw_all = true;
+                 }
+                Event::KeyDown { keycode: Some(Keycode::J), .. } => { 
+                    let width = INITIAL_SIZE.0;
+                    let height = INITIAL_SIZE.1;
+                    pixel_scale += 10;
+                    println!("{}", pixel_scale);
+                    let (cw, ch) = character_map.character_size();
+                    text_buffer.resize_buffer(width as usize * 100 / pixel_scale / cw, height as usize * 100 / pixel_scale / ch);
                     redraw_all = true;
                 }
 
@@ -89,7 +108,7 @@ fn main() -> Result<(), String> {
             redraw_all = false;
         }
         
-        text_buffer.write_to_canvas(&mut interface.canvas, &mut character_map, PIXEL_SCALE)?;
+        text_buffer.write_to_canvas(&mut interface.canvas, &mut character_map, pixel_scale)?;
     }
 
     Ok(())

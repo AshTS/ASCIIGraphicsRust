@@ -47,9 +47,9 @@ impl<'a> CharacterMap<'a> {
 
     /// Get the destination rectangle for a character
     pub fn get_dest_rect(&self, x: isize, y: isize, pixel_scale: usize) -> Rect {
-        Rect::new((x * self.character_size.0 as isize * pixel_scale as isize) as i32,
-            (y * self.character_size.1 as isize * pixel_scale as isize) as i32,
-            (self.character_size.0 * pixel_scale) as u32, 
-            (self.character_size.1 * pixel_scale) as u32)
+        Rect::new((x * self.character_size.0 as isize * pixel_scale as isize / 100) as i32,
+            (y * self.character_size.1 as isize * pixel_scale as isize / 100) as i32,
+            (self.character_size.0 * pixel_scale / 100) as u32, 
+            (self.character_size.1 * pixel_scale / 100) as u32)
     }
 }
